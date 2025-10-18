@@ -3,7 +3,7 @@ name: Deploy NodeApp to EKS via Helm
 on:
   push:
     branches:
-      - main
+      - newsource
       - 'feature/**'  # optional, adjust as needed
   workflow_dispatch:
 
