@@ -11,7 +11,7 @@ env:
   AWS_REGION: us-east-1
   EKS_CLUSTER_NAME: my-eks-cluster
   EKS_NAMESPACE: default
-  IMAGE_REPO: <AWS_ACCOUNT_ID>.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/nodeapp
+  IMAGE_REPO: ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/nodeapp
   HELM_CHART_PATH: helm-chart
 
 jobs:
