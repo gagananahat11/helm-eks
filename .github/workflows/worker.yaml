@@ -1,0 +1,95 @@
+name: Deploy NodeApp to EKS via Helm
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  EKS_CLUSTER_NAME: my-eks-cluster
+  EKS_NAMESPACE: default
+  IMAGE_REPO: <AWS_ACCOUNT_ID>.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/nodeapp
+
+jobs:
+  build_and_push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # needed for GitHub OIDC
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test  # if you have tests
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::<AWS_ACCOUNT_ID>:role/GitHubActionsEKSRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push Docker image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            --build-arg NODE_ENV=production \
+            --build-arg APP_VERSION=${{ github.sha }} \
+            --build-arg FEATURE_FLAG_X=false \
+            -t $IMAGE_REPO:$IMAGE_TAG .
+          docker push $IMAGE_REPO:$IMAGE_TAG
+        # Set output
+      - name: Set image digest output
+        id: image-info
+        run: |
+          echo "IMAGE=$IMAGE_REPO:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: Deploy via Helm
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::<AWS_ACCOUNT_ID>:role/GitHubActionsEKSRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: "v3.11.0"
+
+      - name: Deploy Helm chart
+        run: |
+          helm upgrade --install nodeapp helm-chart \
+            --namespace ${{ env.EKS_NAMESPACE }} \
+            --set image.repository=$IMAGE_REPO \
+            --set image.tag=${{ github.sha }} \
+            --set secrets.secretName=my-nodeapp/mongo-credentials
