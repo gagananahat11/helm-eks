@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'feature/**'  # optional, adjust as needed
   workflow_dispatch:
 
 env:
@@ -11,14 +12,13 @@ env:
   EKS_CLUSTER_NAME: my-eks-cluster
   EKS_NAMESPACE: default
   IMAGE_REPO: <AWS_ACCOUNT_ID>.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/nodeapp
+  HELM_CHART_PATH: helm-chart
 
 jobs:
   build_and_push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write  # needed for GitHub OIDC
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -32,54 +32,59 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test  # if you have tests
+        run: npm test || true
 
-      - name: Configure AWS Credentials (OIDC)
+      - name: Configure AWS Credentials (from Secrets)
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::<AWS_ACCOUNT_ID>:role/GitHubActionsEKSRole
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and push Docker image
         env:
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_REPO: ${{ env.IMAGE_REPO }}
+          COMMIT_SHA: ${{ github.sha }}
+          SHORT_SHA: ${{ github.sha }}  # could shorten manually if needed
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
+          # Clean branch name for Docker tag (replace / with -)
+          TAG_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-')
+          IMAGE_TAG="${TAG_BRANCH}-${COMMIT_SHA}"
+
+          echo "Building and pushing image with tag: $IMAGE_TAG"
+
           docker build \
             --build-arg NODE_ENV=production \
-            --build-arg APP_VERSION=${{ github.sha }} \
+            --build-arg APP_VERSION=$COMMIT_SHA \
             --build-arg FEATURE_FLAG_X=false \
             -t $IMAGE_REPO:$IMAGE_TAG .
+
           docker push $IMAGE_REPO:$IMAGE_TAG
-        # Set output
-      - name: Set image digest output
-        id: image-info
-        run: |
-          echo "IMAGE=$IMAGE_REPO:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   deploy:
     name: Deploy via Helm
     needs: build_and_push
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials (OIDC)
+      - name: Configure AWS Credentials (from Secrets)
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::<AWS_ACCOUNT_ID>:role/GitHubActionsEKSRole
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Update kubeconfig
-        run: |
-          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+        run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
       - name: Setup Helm
         uses: azure/setup-helm@v3
@@ -87,9 +92,13 @@ jobs:
           version: "v3.11.0"
 
       - name: Deploy Helm chart
+        env:
+          IMAGE_REPO: ${{ env.IMAGE_REPO }}
+          IMAGE_TAG: ${{ needs.build_and_push.outputs.IMAGE_TAG }}
         run: |
-          helm upgrade --install nodeapp helm-chart \
+          helm upgrade --install nodeapp ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.EKS_NAMESPACE }} \
+            --create-namespace \
             --set image.repository=$IMAGE_REPO \
-            --set image.tag=${{ github.sha }} \
+            --set image.tag=$IMAGE_TAG \
             --set secrets.secretName=my-nodeapp/mongo-credentials
