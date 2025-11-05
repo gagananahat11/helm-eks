@@ -1,0 +1,108 @@
+[33mcommit 27e9caef667ea3e17c647d28355e50afddb98a8d[m[33m ([m[1;36mHEAD -> [m[1;32mnewsource[m[33m)[m
+Merge: 7ef10c6 1ce2442
+Author: Gaganpreet Singh <your_email@example.com>
+Date:   Wed Nov 5 12:33:45 2025 +0530
+
+    Merge branch 'master' of https://github.com/gagananahat11/helm-eks into newsource
+
+[33mcommit 7ef10c67a4adc84badb58d2ac455c80e98f63793[m
+Author: Gaganpreet Singh <your_email@example.com>
+Date:   Wed Nov 5 12:33:28 2025 +0530
+
+    resolve conflict in worker.yaml
+
+[33mcommit 1ce2442555536acfd3234a571e664c2a629c51d4[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Wed Nov 5 12:27:03 2025 +0530
+
+    Add comment for Mongo DB configuration check
+    
+    Add a comment to indicate the addition of data checks.
+
+[33mcommit ece4a3b5188654ade681b12bb565661fe6d0279a[m[33m ([m[1;31morigin/newsource[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Wed Nov 5 11:55:48 2025 +0530
+
+    Update worker.yaml
+
+[33mcommit 6af99a8415b2d6515b15cf00f49d782335b0c58c[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Wed Nov 5 11:51:13 2025 +0530
+
+    Fix typo in package.json
+
+[33mcommit 3598180dcaa66a3c6ffc1fa433bcbabd8011b86f[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Wed Nov 5 11:45:20 2025 +0530
+
+    Fix formatting issue in package.json
+
+[33mcommit 702e8f3552c66686729621eca34c8c6a6581eb61[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Wed Nov 5 11:44:17 2025 +0530
+
+    Add comment for COPY command in Dockerfile
+    
+    Added a comment to indicate the purpose of the COPY command.
+
+[33mcommit 5fe2b669984226b793084c0dfdd2fcc0aee1332e[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Wed Nov 5 11:39:42 2025 +0530
+
+    Update Dockerfile
+
+[33mcommit ad2537388c2abfb088c5de604adfd3d17095519b[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Sat Oct 18 15:32:08 2025 +0530
+
+    Update worker.yaml
+
+[33mcommit aeae6ec80e6b985adbf29a7f3e09e7d89426231f[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Sat Oct 18 14:57:12 2025 +0530
+
+    Refactor IMAGE_REPO setup in GitHub Actions workflow
+    
+    Updated IMAGE_REPO environment variable handling and adjusted workflow triggers.
+
+[33mcommit 072a040c65a95c1e2f80a479148a9e1b622b6e88[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Sat Oct 18 14:55:21 2025 +0530
+
+    Update worker.yaml
+
+[33mcommit 3ffacdc6221b70b6fffe907c85173cc7e92c6a0d[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Sat Oct 18 13:18:25 2025 +0530
+
+    Update worker.yaml
+
+[33mcommit c10b15de4ebb89182dfdeb1160643b0f14ca11b1[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Sat Oct 18 12:47:32 2025 +0530
+
+    seecrete
+
+[33mcommit 087964f66c4d93fbb17de1bdf87fdc12c9343b61[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Sat Oct 18 12:17:26 2025 +0530
+
+    Update worker.yaml
+
+[33mcommit 76f20b3fa247f9399fb004092191a23d4c42392f[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Sat Oct 18 11:51:49 2025 +0530
+
+    changecicd
+
+[33mcommit 979fdf9455a55bff5b6813b58ccad31e28525d10[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Sat Oct 18 11:38:26 2025 +0530
+
+    add-pachage
+
+[33mcommit 1e9db9dcbb47ed0b2a98381e48466b1e867f04f0[m
+Author: Gaganpreet11@ <gs621720@gmail.com>
+Date:   Sat Oct 18 11:30:00 2025 +0530
+
+    Initial commit

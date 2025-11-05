@@ -3,17 +3,22 @@ name: Deploy NodeApp to EKS via Helm
 on:
   push:
     branches:
-      - main
-      - 'feature/**'  # optional, adjust as needed
+      - newsource
+      - 'feature/**'
   workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1
   EKS_CLUSTER_NAME: AI-service
   EKS_NAMESPACE: default
+<<<<<<< HEAD
   IMAGE_REPO: ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/nodeapp
   HELM_CHART_PATH: helm-chart
 #ddd
+=======
+  ##########################
+
+>>>>>>> origin/master
 jobs:
   build_and_push:
     name: Build & Push Docker Image
@@ -44,27 +49,24 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Set IMAGE_REPO env variable
+        run: |
+          echo "IMAGE_REPO=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/nodeapp" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         env:
-          IMAGE_REPO: ${{ env.IMAGE_REPO }}
           COMMIT_SHA: ${{ github.sha }}
-          SHORT_SHA: ${{ github.sha }}  # could shorten manually if needed
           BRANCH_NAME: ${{ github.ref_name }}
         run: |
-          # Clean branch name for Docker tag (replace / with -)
           TAG_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-')
           IMAGE_TAG="${TAG_BRANCH}-${COMMIT_SHA}"
-
           echo "Building and pushing image with tag: $IMAGE_TAG"
-
           docker build \
             --build-arg NODE_ENV=production \
             --build-arg APP_VERSION=$COMMIT_SHA \
             --build-arg FEATURE_FLAG_X=false \
             -t $IMAGE_REPO:$IMAGE_TAG .
-
           docker push $IMAGE_REPO:$IMAGE_TAG
-
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   deploy:
@@ -91,9 +93,12 @@ jobs:
         with:
           version: "v3.11.0"
 
+      - name: Set IMAGE_REPO again
+        run: |
+          echo "IMAGE_REPO=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/nodeapp" >> $GITHUB_ENV
+
       - name: Deploy Helm chart
         env:
-          IMAGE_REPO: ${{ env.IMAGE_REPO }}
           IMAGE_TAG: ${{ needs.build_and_push.outputs.IMAGE_TAG }}
         run: |
           helm upgrade --install nodeapp ${{ env.HELM_CHART_PATH }} \

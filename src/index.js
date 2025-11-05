@@ -11,7 +11,11 @@ const {
   NODE_ENV,
   APP_PORT,
 } = process.env;
+<<<<<<< HEAD
 # docker exc 
+=======
+# add on data 
+>>>>>>> origin/master
 if (!MONGO_HOST || !MONGO_DB) {
   console.error('Missing Mongo DB config in env');
   process.exit(1);
