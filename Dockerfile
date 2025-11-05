@@ -14,7 +14,7 @@ ENV FEATURE_FLAG_X=${FEATURE_FLAG_X}
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install --production
-
+#copy dir
 COPY . .
 
 # Final stage
