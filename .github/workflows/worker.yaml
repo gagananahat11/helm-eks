@@ -11,7 +11,7 @@ env:
   AWS_REGION: us-east-1
   EKS_CLUSTER_NAME: AI-service
   EKS_NAMESPACE: default
-  
+  ##########################
 
 jobs:
   build_and_push:
