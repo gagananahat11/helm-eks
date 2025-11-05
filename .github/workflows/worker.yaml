@@ -3,8 +3,8 @@ name: Deploy NodeApp to EKS via Helm
 on:
   push:
     branches:
-      - newsource
-      - 'feature/**'
+      - main
+      - 'master'
   workflow_dispatch:
 
 env:
@@ -13,6 +13,10 @@ env:
   EKS_NAMESPACE: default
   
 
+=======
+  IMAGE_REPO: ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/nodeapp
+  HELM_CHART_PATH: helm-chart
+#ddd
 jobs:
   build_and_push:
     name: Build & Push Docker Image
